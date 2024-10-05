@@ -76,6 +76,7 @@ export interface HeliusAsset {
     } | null;
     token_info: {
         symbol: string;
+        balance: number;
         supply: number;
         decimals: number;
         token_program: string;

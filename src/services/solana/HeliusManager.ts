@@ -65,7 +65,7 @@ export class HeliusManager {
         console.log(new Date(), process.env.SERVER_NAME, 'revokeCollectionAuthority res', res);
     }
 
-    static async getAssetsByOwner(walletAddress: string, page = 1): Promise<HeliusAsset[]> {
+    static async getAssetsByOwner(walletAddress: string, page = 1): Promise<{nativeBalance?: {lamports: number, price_per_sol: number, total_price: number}, items: HeliusAsset[]}> {
         try{
             const limit = 1000;
 
@@ -91,18 +91,20 @@ export class HeliusManager {
                 }),
             });
             const { result } = await response.json() as any;
+
+            console.log('!result', result);
             const items = result?.items || [];
 
-            if (items.length == limit && page < 3){
-                const nextItems = await this.getAssetsByOwner(walletAddress, page+1);
-                return items.concat(nextItems);
-            }
+            // if (items.length == limit && page < 3){
+            //     const nextItems = await this.getAssetsByOwner(walletAddress, page+1);
+            //     return items.concat(nextItems);
+            // }
 
-            return items;
+            return { nativeBalance: result.nativeBalance , items};
         }
         catch (e){
             console.error('getAssetsByOwner', e);
-            return [];
+            return {items: []};
         }
     }
 
