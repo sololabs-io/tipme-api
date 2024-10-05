@@ -1,4 +1,5 @@
 import { IUser, TelegramUser, User } from "../entities/User";
+import { SolanaManager } from "../services/solana/SolanaManager";
 
 export class UserManager {
 
@@ -47,6 +48,7 @@ export class UserManager {
             const newUser = await User.create({
                 telegram: from,
                 createdAt: now,
+                wallet: SolanaManager.createWallet(),
             });
             this.cachedUsers.push({ user: newUser, createdAt: now });
             return newUser;

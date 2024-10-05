@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose';
+import { WalletModel } from '../services/solana/types';
 
 export let Schema = mongoose.Schema;
 export let ObjectId = mongoose.Schema.Types.ObjectId;
@@ -18,6 +19,7 @@ export interface IUser extends mongoose.Document {
     email?: string;
     telegram?: TelegramUser;
     referralCode?: string;
+    wallet: WalletModel;
 
     updatedAt?: Date;
     createdAt: Date;
@@ -35,6 +37,7 @@ export const UserSchema = new mongoose.Schema<IUser>({
         is_premium: { type: Boolean }
     },
     referralCode: { type: String },
+    wallet: { type: Mixed },
 
     updatedAt: { type: Date, default: new Date() },
     createdAt: { type: Date, default: new Date() }

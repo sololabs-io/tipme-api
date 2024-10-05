@@ -8,6 +8,8 @@ import { InlineKeyboardMarkup } from "grammy/types";
 import { ExplorerManager } from "../../services/explorers/ExplorerManager";
 import { Chain } from "../../services/solana/types";
 import { BotHelpHelper } from "./helpers/BotHelpHelper";
+import { BotWalletHelper } from "./helpers/BotWalletHelper";
+import { BotBalanceHelper } from "./helpers/BotBalanceHelper";
 
 export interface SendMessageData {
     chatId: number;
@@ -43,6 +45,8 @@ export class BotManager {
     helpers: BotHelper[] = [
         new BotStartHelper(),
         new BotHelpHelper(),
+        new BotWalletHelper(),
+        new BotBalanceHelper(),
     ];
 
     constructor() {

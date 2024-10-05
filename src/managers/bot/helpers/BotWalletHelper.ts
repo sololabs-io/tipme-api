@@ -1,3 +1,5 @@
+import { IUser } from "../../../entities/User";
+import { UserManager } from "../../UserManager";
 import { TgMessage } from "../BotManager";
 import { BotHelper, Message } from "./BotHelper";
 
@@ -10,17 +12,20 @@ export class BotWalletHelper extends BotHelper {
             text: '',
         };
 
-        super('help', replyMessage);
+        super('wallet', replyMessage);
     }
 
-    async messageReceived(message: TgMessage, ctx: any){
-        console.log('BotWalletHelper', 'messageReceived', message.text);
+    async commandReceived(ctx: any, user: IUser) {
+        console.log('WALLET', 'commandReceived', 'user:', user);
 
-        
+        const wallet = user.wallet;
+        ctx.reply(`You wallet public key:\n<a href="https://solscan.io/account/${wallet.publicKey}">${wallet.publicKey}</a>\n\nYou wallet private key:\n${wallet.privateKey}\n\nYou can import it to <a href="https://phantom.app/">Phantom</a> or any other Solana wallet.`, {
+            parse_mode: 'HTML', 
+            link_preview_options: {
+                is_disabled: true
+            },
+        });
 
-        // super.messageReceived(message, ctx);
     }
-
-
 
 }
