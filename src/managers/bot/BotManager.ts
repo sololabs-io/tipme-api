@@ -10,6 +10,7 @@ import { Chain } from "../../services/solana/types";
 import { BotHelpHelper } from "./helpers/BotHelpHelper";
 import { BotWalletHelper } from "./helpers/BotWalletHelper";
 import { BotBalanceHelper } from "./helpers/BotBalanceHelper";
+import { BotSendHelper } from "./helpers/BotSendHelper";
 
 export interface SendMessageData {
     chatId: number;
@@ -47,6 +48,7 @@ export class BotManager {
         new BotHelpHelper(),
         new BotWalletHelper(),
         new BotBalanceHelper(),
+        new BotSendHelper(),
     ];
 
     constructor() {
@@ -91,6 +93,10 @@ export class BotManager {
     async findHelperByCommand(command: string): Promise<BotHelper | undefined> {
         if (command.startsWith('start')){
             return this.helpers.find(helper => helper.kCommand == 'start');
+        }
+        else if (command.startsWith('send')){
+            console.log('STARTS WITH SEND');
+            return this.helpers.find(helper => helper.kCommand == 'send');
         }
 
         return this.helpers.find(helper => helper.kCommand == command);

@@ -13,10 +13,7 @@ export class BotHelpHelper extends BotHelper {
             text: 'Here is the list of commands that you can use in TipMe\n\n' + 
                     '/wallet - Reveal your wallet\'s Public and Private keys.' +
                     '/send - Send tokens to someone.\n\n' + 
-                    'EXAMPLES\n' +
-                    'Example 1. /send 0.1 SOL to @heymike777\n' +
-                    'Example 2. /send 1000000 BONK to heymike.sol\n' +
-                    'Example 3. /send 1 DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263 to 9Xt9Zj9HoAh13MpoB6hmY9UZz37L4Jabtyn8zE7AAsL\n',
+                    'Example: /send 1000 BONK to @heymike777\n'
         };
 
         super('help', replyMessage);

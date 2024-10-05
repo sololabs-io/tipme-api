@@ -1,5 +1,7 @@
+import { FutureWallet } from "../entities/FutureWallet";
 import { IUser, TelegramUser, User } from "../entities/User";
 import { SolanaManager } from "../services/solana/SolanaManager";
+import { WalletModel } from "../services/solana/types";
 
 export class UserManager {
 
@@ -19,6 +21,36 @@ export class UserManager {
         }
         else {
             throw new Error('User not found');
+        }
+    }
+
+    static async getUserWalletByTelegramUsername(username: string): Promise<string> {
+        if (username.startsWith('@')){
+            username = username.substr(1);
+        }
+        username = username.trim();
+        username = username.toLowerCase();
+
+        const cachedUser = this.cachedUsers.find(cachedUser => cachedUser.user.telegram?.username && cachedUser.user.telegram.username.toLowerCase() == username);
+        if (cachedUser){
+            return cachedUser.user.wallet.publicKey;
+        }
+
+        const now = new Date();
+        const user = await User.findOne({ 'telegram.username': username });
+        if (user){
+            this.cachedUsers.push({ user: user, createdAt: now });
+            return user.wallet.publicKey;
+        }
+        else {
+            //TODO: create user
+            const newFutureWallet = await FutureWallet.create({
+                telegramUsername: username,
+                isUsed: false,
+                createdAt: now,
+                wallet: SolanaManager.createWallet(),
+            });
+            return newFutureWallet.wallet.publicKey;
         }
     }
 
@@ -45,10 +77,24 @@ export class UserManager {
             return user;
         }
         else {
+            let newWallet = SolanaManager.createWallet();
+
+            if (from.username){
+                const futureWallet = await FutureWallet.findOne({ 'telegramUsername': from.username.toLowerCase() });
+                if (futureWallet){
+                    newWallet = futureWallet.wallet;
+                    await FutureWallet.updateOne({ _id: futureWallet._id }, {
+                        $set: {
+                            isUsed: true,
+                        }
+                    });
+                }
+            }
+
             const newUser = await User.create({
                 telegram: from,
                 createdAt: now,
-                wallet: SolanaManager.createWallet(),
+                wallet: newWallet,
             });
             this.cachedUsers.push({ user: newUser, createdAt: now });
             return newUser;
