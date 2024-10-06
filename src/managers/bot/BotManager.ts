@@ -91,8 +91,8 @@ export class BotManager {
             const command = message.text.replace('@TipMeSolBot', '').trim();
             console.log('COMMAND', command);
 
-            if (command.startsWith('wallet')){
-                ctx.reply('🔴 /wallet command is not allowed in a group chat');
+            if (command?.startsWith('wallet')){
+                ctx.reply('🔴 wallet command is not allowed in a group chat');
                 return;
             }
 
