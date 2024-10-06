@@ -1,6 +1,5 @@
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { IUser } from "../../../entities/User";
-import { kSolAddress } from "../../../services/solana/Constants";
 import { HeliusManager } from "../../../services/solana/HeliusManager";
 import { BotHelper, Message } from "./BotHelper";
 import { HeliusAsset } from "../../../services/solana/HeliusTypes";
@@ -11,7 +10,7 @@ import { BotManager } from "../BotManager";
 
 export class BotSendHelper extends BotHelper {
 
-    kMinSolForFees = 0.01;
+    kMinSolForFees = 0.005;
 
     constructor() {
         console.log('BotSendHelper', 'constructor');
@@ -158,14 +157,20 @@ export class BotSendHelper extends BotHelper {
             this.replyWithError(ctx, `Error: ${err}`);
         }
         else if (signature) {
-            ctx.reply(`✅ Sent ${amount} ${assetName} to ${toUser}.\n\nTransaction: ${ExplorerManager.getUrlToTransaction(signature)}`, {
+            const receiver = await UserManager.getUserByTelegramUsername(toUser);
+            let msg = `✅ Sent ${amount} ${assetName} to ${toUser}.\n\nTransaction: ${ExplorerManager.getUrlToTransaction(signature)}`;
+            if (!receiver){
+                msg += `\n\nTell ${toUser} to install @TipMeSolBot bot to claim tokens.`;
+            }
+
+
+            ctx.reply(msg, {
                 parse_mode: 'HTML', 
                 link_preview_options: {
                     is_disabled: true
                 },
             });
 
-            const receiver = await UserManager.getUserByTelegramUsername(toUser);
             if (receiver && receiver.telegram){
                 await BotManager.sendMessage({
                     chatId: receiver.telegram.id,
