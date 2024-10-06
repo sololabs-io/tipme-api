@@ -7,6 +7,7 @@ import { HeliusAsset } from "../../../services/solana/HeliusTypes";
 import { UserManager } from "../../UserManager";
 import { SolanaManager } from "../../../services/solana/SolanaManager";
 import { ExplorerManager } from "../../../services/explorers/ExplorerManager";
+import { BotManager } from "../BotManager";
 
 export class BotSendHelper extends BotHelper {
 
@@ -25,9 +26,13 @@ export class BotSendHelper extends BotHelper {
     async commandReceived(ctx: any, user: IUser) {
         console.log('WALLET', 'commandReceived', 'user:', user, 'ctx:', ctx);
 
-        const message = ctx.update.message.text;
+        let message = ctx.update.message.text;
+        if (message.startsWith('@TipMeSolBot')){
+            message = message.replace('@TipMeSolBot', '').trim();
+        }
+
         const parts = message.split(' ');
-        if (parts[0] != '/send'){
+        if (parts[0] != '/send' && parts[0] != '/SEND' && parts[0] != 'send' && parts[0] != 'SEND'){
             this.replyWithError(ctx, 'Unknown command');
             return;
         }
@@ -159,6 +164,15 @@ export class BotSendHelper extends BotHelper {
                     is_disabled: true
                 },
             });
+
+            const receiver = await UserManager.getUserByTelegramUsername(toUser);
+            if (receiver && receiver.telegram){
+                await BotManager.sendMessage({
+                    chatId: receiver.telegram.id,
+                    text: `💸 ${user.telegram?.username ? '@'+user.telegram?.username : 'Someone'} sent you ${amount} ${assetName}.\n\nTransaction: ${ExplorerManager.getUrlToTransaction(signature)}`,
+                })
+
+            }
         }
         else {
             this.replyWithError(ctx, `Unknown error`);

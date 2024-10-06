@@ -87,6 +87,12 @@ export class BotManager {
             this.onCommand(command, ctx, user);
             return;
         }
+        else if (message.text.startsWith('@TipMeSolBot')){
+            const command = message.text.replace('@TipMeSolBot', '').trim();
+            console.log('COMMAND', command);
+            this.onCommand(command, ctx, user);
+            return;
+        }
 
     }
 

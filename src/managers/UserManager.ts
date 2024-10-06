@@ -54,6 +54,28 @@ export class UserManager {
         }
     }
 
+    static async getUserByTelegramUsername(username: string): Promise<IUser | undefined> {
+        if (username.startsWith('@')){
+            username = username.substr(1);
+        }
+        username = username.trim();
+        username = username.toLowerCase();
+
+        const cachedUser = this.cachedUsers.find(cachedUser => cachedUser.user.telegram?.username && cachedUser.user.telegram.username.toLowerCase() == username);
+        if (cachedUser){
+            return cachedUser.user;
+        }
+
+        const now = new Date();
+        const user = await User.findOne({ 'telegram.username': username });
+        if (user){
+            this.cachedUsers.push({ user: user, createdAt: now });
+            return user;
+        }
+
+        return undefined;
+    }
+
     static async getUserByTelegramUser(from: TelegramUser): Promise<IUser> {
         const cachedUser = this.cachedUsers.find(cachedUser => cachedUser.user.telegram?.id === from.id);
         if (cachedUser){
