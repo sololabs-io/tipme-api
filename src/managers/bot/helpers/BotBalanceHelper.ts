@@ -49,7 +49,7 @@ export class BotBalanceHelper extends BotHelper {
 
         let message = '';
         if (tokens.length == 0){
-            message = `You have no tokens. Fund your wallet to use TipMe.\n\nWallet address: ${user.wallet.publicKey}`;
+            message = `You have no tokens. Fund your wallet to use TipMe.\n\nWallet address: ${user.wallet.publicKey}\n\n🚨 ONLY COINS ON THE SOLANA BLOCKCHAIN ARE ACCEPTED`;
         }
         else {
             message = 'Your balance:\n';

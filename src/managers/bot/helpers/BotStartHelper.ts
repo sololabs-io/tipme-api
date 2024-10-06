@@ -19,7 +19,7 @@ export class BotStartHelper extends BotHelper {
         console.log('Start', 'commandReceived', 'user:', user);
 
         const wallet = user.wallet;
-        ctx.reply(`Hey, it's TipMe!\n\nI can send tokens to anyone on Solana. Fund your wallet with your treasury tokens and some SOL to cover gas fees.\n\nYou wallet public key:\n<a href="https://solscan.io/account/${wallet.publicKey}">${wallet.publicKey}</a>\n\n`, {
+        ctx.reply(`Hey, it's TipMe!\n\nI can send tokens to anyone on Solana. Fund your wallet with your treasury tokens and some SOL to cover gas fees.\n\nYou wallet public key:\n<a href="https://solscan.io/account/${wallet.publicKey}">${wallet.publicKey}</a>\n\n🚨 ONLY COINS ON THE SOLANA BLOCKCHAIN ARE ACCEPTED`, {
             parse_mode: 'HTML', 
             link_preview_options: {
                 is_disabled: true
