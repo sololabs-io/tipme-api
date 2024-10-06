@@ -347,12 +347,13 @@ export class HeliusManager {
     };
 
         
-    static async sendSmartTransaction(instructions: TransactionInstruction[], keypair: Keypair, lookupTables?: AddressLookupTableAccount[], tipsLamports?: number){
+    static async sendSmartTransaction(instructions: TransactionInstruction[], keypair: Keypair, lookupTables?: AddressLookupTableAccount[], tipsLamports?: number): Promise<string | undefined>{
         this.initHelius();
 
         try{
-            const transactionSignature = await this.helius.rpc.sendSmartTransaction(instructions, [keypair], lookupTables, {skipPreflight: true, maxRetries: 1, lastValidBlockHeightOffset: 0});
+            const transactionSignature = await this.helius.rpc.sendSmartTransaction(instructions, [keypair], lookupTables, {skipPreflight: true, maxRetries: 0, lastValidBlockHeightOffset: 0});
             console.log(`Helius sendSmartTransaction - Successful transfer: ${transactionSignature}`);    
+            return transactionSignature;
         }
         catch (err){
             console.error('Helius sendSmartTransaction', err);
@@ -365,6 +366,29 @@ export class HeliusManager {
         // catch (err){
         //     console.error('Helius sendSmartTransactionWithTip', err);
         // }
+
+        return undefined;
+    }
+
+    static async pollTransactionConfirmation(signature: string): Promise<boolean>{
+        this.initHelius();
+
+        try{
+            const transactionSignature = await this.helius.rpc.pollTransactionConfirmation(signature, {
+                confirmationStatuses: ['confirmed'],
+                timeout: 60000,
+                interval: 1000, 
+            });
+            console.log(`Helius pollTransactionConfirmation - transactionSignature: ${transactionSignature}`);   
+            if (transactionSignature == signature){
+                return true;
+            } 
+        }
+        catch (err){
+            console.error('Helius sendSmartTransaction', err);
+        }
+
+        return false;
     }
 
     static async getTokenHolders(mint: string, includeEmpty: Boolean = false, includeSpecialWallets: Boolean = false): Promise<TokenHolder[]> {

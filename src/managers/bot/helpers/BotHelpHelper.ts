@@ -11,7 +11,8 @@ export class BotHelpHelper extends BotHelper {
 
         const replyMessage: Message = {
             text: 'Here is the list of commands that you can use in TipMe\n\n' + 
-                    '/wallet - Reveal your wallet\'s Public and Private keys.' +
+                    '/wallet - Reveal your wallet\'s Public and Private keys.\n' +
+                    '/balance - Check your wallet balance.\n' +
                     '/send - Send tokens to someone.\n\n' + 
                     'Example: /send 1000 BONK to @heymike777\n'
         };

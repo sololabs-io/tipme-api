@@ -5,6 +5,8 @@ import { HeliusManager } from "../../../services/solana/HeliusManager";
 import { BotHelper, Message } from "./BotHelper";
 import { HeliusAsset } from "../../../services/solana/HeliusTypes";
 import { UserManager } from "../../UserManager";
+import { SolanaManager } from "../../../services/solana/SolanaManager";
+import { ExplorerManager } from "../../../services/explorers/ExplorerManager";
 
 export class BotSendHelper extends BotHelper {
 
@@ -70,8 +72,10 @@ export class BotSendHelper extends BotHelper {
             return;
         }
 
+        let isSol = false;
         if (tokenStr.toUpperCase() == 'SOL'){
             tokenStr = 'SOL';
+            isSol = true;
 
             if (assets.nativeBalance.lamports < (amount + this.kMinSolForFees) * LAMPORTS_PER_SOL){
                 let error = `Not enough SOL. You need at least ${amount + this.kMinSolForFees} SOL on balance.`;
@@ -106,14 +110,14 @@ export class BotSendHelper extends BotHelper {
             }
         }
 
-        if (!asset){
+        if (!isSol && !asset){
             this.replyWithError(ctx, `You don't have ${tokenStr}`);
             return;
         }
 
         console.log('!asset:', asset);
 
-        const assetName = asset.token_info?.symbol || asset.id;
+        const assetName = isSol ? 'SOL' : asset!.token_info?.symbol || asset!.id;
 
         ctx.reply(`Ok, sending ${amount} ${assetName} to ${toUser}`, {
             parse_mode: 'HTML', 
@@ -121,6 +125,45 @@ export class BotSendHelper extends BotHelper {
                 is_disabled: true
             },
         });
+
+        let err: string | undefined = undefined;
+        let signature: string | undefined = undefined;
+    
+        if (isSol){
+            // send SOL (with 3 retries)
+            const res = await SolanaManager.sendSol(user.wallet, toWalletAddress, amount, 3);
+            err = res.err;
+            signature = res.signature;
+        }
+        else {
+            // send asset token (with 3 retries)
+            const mint = asset?.id;
+            const decimals = asset?.token_info.decimals;
+            if (!mint || !decimals){
+                this.replyWithError(ctx, `Unknown token mint.`);
+                return;
+            }
+
+            const res = await SolanaManager.sendSplToken(user.wallet, toWalletAddress, amount, mint, decimals, 3);
+            err = res.err;
+            signature = res.signature;
+        }
+
+        if (err){
+            this.replyWithError(ctx, `Error: ${err}`);
+        }
+        else if (signature) {
+            ctx.reply(`✅ Sent ${amount} ${assetName} to ${toUser}.\n\nTransaction: ${ExplorerManager.getUrlToTransaction(signature)}`, {
+                parse_mode: 'HTML', 
+                link_preview_options: {
+                    is_disabled: true
+                },
+            });
+        }
+        else {
+            this.replyWithError(ctx, `Unknown error`);
+        }
+
 
     }
 

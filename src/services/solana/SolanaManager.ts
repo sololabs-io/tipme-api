@@ -496,6 +496,76 @@ export class SolanaManager {
         return txs.filter(tx => tx != null) as web3.ParsedTransactionWithMeta[];
     }
 
+    static async sendSol(from: WalletModel, to: string, amount: number, retries: number): Promise<{err?: string, signature?: string}> {
+        const fromWallet = web3.Keypair.fromSecretKey(base58.decode(from.privateKey));
+        const toWallet = new web3.PublicKey(to);
+        const lamports = Math.floor(amount * web3.LAMPORTS_PER_SOL);
+        if (lamports != amount * web3.LAMPORTS_PER_SOL){
+            return {err: 'Invalid amount'};
+        }
+
+        console.log(new Date(), process.env.SERVER_NAME, 'sendSol', 'from', fromWallet.publicKey.toBase58(), 'to', toWallet.toBase58(), 'lamports', lamports);
+        const instructions = [
+            web3.SystemProgram.transfer({
+                fromPubkey: fromWallet.publicKey,
+                toPubkey: toWallet,
+                lamports: lamports,
+            })
+        ];
+
+        const signature = await HeliusManager.sendSmartTransaction(instructions, fromWallet);
+        console.log(new Date(), process.env.SERVER_NAME, 'sendSol', 'signature', signature);
+        let success = false;
+        if (signature){
+            success = await HeliusManager.pollTransactionConfirmation(signature);
+        }
+
+        console.log(new Date(), process.env.SERVER_NAME, 'sendSol', 'success', success);            
+
+        if (!success){
+            if (retries > 0){
+                return await this.sendSol(from, to, amount, retries - 1);
+            }
+            else {
+                return {err: 'Failed to send transaction'};
+            }
+        }
+
+        return { signature: signature }
+    }
+
+    static async sendSplToken(from: WalletModel, to: string, amount: number, mint: string, decimals: number, retries: number): Promise<{err?: string, signature?: string}> {
+        const fromWallet = web3.Keypair.fromSecretKey(base58.decode(from.privateKey));
+        const toWallet = new web3.PublicKey(to);
+        const lamports = Math.floor(amount * (10**decimals));
+        if (lamports != amount * (10**decimals)){
+            return {err: 'Invalid amount'};
+        }
+
+        const connection = newConnection();
+        const instructions = await this.createSplTransferInstructions(connection, new web3.PublicKey(mint), amount, decimals, fromWallet.publicKey, toWallet, fromWallet.publicKey);
+
+        const signature = await HeliusManager.sendSmartTransaction(instructions, fromWallet);
+        console.log(new Date(), process.env.SERVER_NAME, 'sendSplToken', 'signature', signature);
+        let success = false;
+        if (signature){
+            success = await HeliusManager.pollTransactionConfirmation(signature);
+        }
+
+        console.log(new Date(), process.env.SERVER_NAME, 'sendSplToken', 'success', success);            
+
+        if (!success){
+            if (retries > 0){
+                return await this.sendSplToken(from, to, amount, mint, decimals, retries - 1);
+            }
+            else {
+                return {err: 'Failed to send transaction'};
+            }
+        }
+
+        return { signature: signature }
+    }
+
 
     // ---------------------
     private static recentBlockhash: web3.BlockhashWithExpiryBlockHeight | undefined;
