@@ -102,7 +102,7 @@ export class UserManager {
             let newWallet = SolanaManager.createWallet();
 
             if (from.username){
-                const futureWallet = await FutureWallet.findOne({ 'telegramUsername': from.username.toLowerCase() });
+                const futureWallet = await FutureWallet.findOne({ 'telegramUsername': from.username.toLowerCase(), isUsed: false });
                 if (futureWallet){
                     newWallet = futureWallet.wallet;
                     await FutureWallet.updateOne({ _id: futureWallet._id }, {
