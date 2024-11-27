@@ -1,22 +1,11 @@
 export class ExplorerManager {
 
     static getUrlToAddress(address: string): string {
-        return `https://solscan.io/address/${address}`;
+        return `https://solscan.io/address/${address}?cluster=custom&customUrl=https%3A%2F%2Frpc.testnet.soo.network%2Frpc`;
     }
 
     static getUrlToTransaction(signature: string): string {
-        return `https://solscan.io/tx/${signature}`;
+        return `https://solscan.io/tx/${signature}?cluster=custom&customUrl=https%3A%2F%2Frpc.testnet.soo.network%2Frpc`;
     }
     
-    static getUrlToRugCheck(address: string): string {
-        return `https://rugcheck.xyz/tokens/${address}`;
-    }
-
-    static getMarketplace(address: string): { title: string, url: string } {
-        return {
-            title: 'Tensor',
-            url: `https://www.tensor.trade/item/${address}`
-        }
-    }
-
 }

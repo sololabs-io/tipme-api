@@ -1,8 +1,7 @@
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { IUser } from "../../../entities/User";
-import { HeliusManager } from "../../../services/solana/HeliusManager";
+import { Asset, RpcManager } from "../../../services/solana/RpcManager";
 import { BotHelper, Message } from "./BotHelper";
-import { HeliusAsset } from "../../../services/solana/HeliusTypes";
 import { UserManager } from "../../UserManager";
 import { SolanaManager } from "../../../services/solana/SolanaManager";
 import { ExplorerManager } from "../../../services/explorers/ExplorerManager";
@@ -26,8 +25,8 @@ export class BotSendHelper extends BotHelper {
         console.log('WALLET', 'commandReceived', 'user:', user, 'ctx:', ctx);
 
         let message = ctx.update.message.text;
-        if (message.startsWith('@TipMeSolBot')){
-            message = message.replace('@TipMeSolBot', '').trim();
+        if (message.startsWith('@TipMeSoonBot')){
+            message = message.replace('@TipMeSoonBot', '').trim();
         }
 
         const parts = message.split(' ');
@@ -63,7 +62,7 @@ export class BotSendHelper extends BotHelper {
 
         // get token by tokenStr
         // check if I have enough tokens (and at least 0.01 SOL for fees)
-        const assets = await HeliusManager.getAssetsByOwner(user.wallet.publicKey);
+        const assets = await RpcManager.getAssetsByOwner(user.wallet.publicKey);
         console.log('assets:', JSON.stringify(assets));
 
         if (!assets.nativeBalance || assets.nativeBalance?.lamports < this.kMinSolForFees * LAMPORTS_PER_SOL){
@@ -92,10 +91,10 @@ export class BotSendHelper extends BotHelper {
             }
         }
 
-        let asset: HeliusAsset | undefined = undefined;
+        let asset: Asset | undefined = undefined;
         for (const item of assets.items) {
-            const assetName = item.token_info?.symbol;
-            const assetId = item.id;
+            const assetName = item.symbol;
+            const assetId = item.mint;
 
             const tokenStrUpper = tokenStr.toUpperCase();
 
@@ -103,12 +102,12 @@ export class BotSendHelper extends BotHelper {
                 (assetName && assetName.toUpperCase() == tokenStrUpper) ||
                 (assetId && assetId.toUpperCase() == tokenStrUpper)){
                 
-                if (item.token_info?.balance && item.token_info.balance >= amount * (10 ** item.token_info.decimals)){
+                if (item.balance && item.balance >= amount * (10 ** item.decimals)){
                     asset = item;
                     break;
                 }
                 else {
-                    this.replyWithError(ctx, `Not enough ${assetName || assetId}. You have ${item.token_info?.balance / (10 ** item.token_info.decimals)} ${assetName || assetId}`);
+                    this.replyWithError(ctx, `Not enough ${assetName || assetId}. You have ${item.balance / (10 ** item.decimals)} ${assetName || assetId}`);
                     return;
                 }
             }
@@ -121,7 +120,7 @@ export class BotSendHelper extends BotHelper {
 
         console.log('!asset:', asset);
 
-        const assetName = isSol ? 'SOL' : asset!.token_info?.symbol || asset!.id;
+        const assetName = isSol ? 'SOL' : asset?.symbol || asset?.mint || 'unknown';
 
         ctx.reply(`Ok, sending ${amount} ${assetName} to ${toUser}`, {
             parse_mode: 'HTML', 
@@ -141,8 +140,8 @@ export class BotSendHelper extends BotHelper {
         }
         else {
             // send asset token (with 3 retries)
-            const mint = asset?.id;
-            const decimals = asset?.token_info.decimals;
+            const mint = asset?.mint;
+            const decimals = asset?.decimals;
             if (!mint || !decimals){
                 this.replyWithError(ctx, `Unknown token mint.`);
                 return;
@@ -160,7 +159,7 @@ export class BotSendHelper extends BotHelper {
             const receiver = await UserManager.getUserByTelegramUsername(toUser);
             let msg = `✅ Sent ${amount} ${assetName} to ${toUser}.\n\nTransaction: ${ExplorerManager.getUrlToTransaction(signature)}`;
             if (!receiver){
-                msg += `\n\nTell ${toUser} to install @TipMeSolBot bot to claim tokens.`;
+                msg += `\n\nTell ${toUser} to install @TipMeSoonBot bot to claim tokens.`;
             }
 
 

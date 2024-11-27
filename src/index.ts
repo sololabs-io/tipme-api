@@ -13,7 +13,6 @@ import cron from 'node-cron';
 import { MigrationManager } from './services/MigrationManager';
 import { BotManager } from './managers/bot/BotManager';
 import { User } from './entities/User';
-import { JitoWebsocketManager } from './services/solana/JitoWebsocketManager';
 import { UserManager } from './managers/UserManager';
 
 const app = express();
@@ -43,7 +42,6 @@ const onExpressStarted = async () => {
     setupCron();
     setupBot();
 
-    JitoWebsocketManager.getInstance();
     await MigrationManager.migrate();
 }
 

@@ -63,16 +63,3 @@ export interface Amount {
     uiAmount: number;
     decimals: number;
 }
-
-export enum Priority {
-    LOW = 'LOW',
-    HIGH = 'HIGH'
-}
-
-export enum Chain {
-    SOLANA = 'sol',
-    ETHEREUM = 'eth',
-    TON = 'ton',
-    TRON = 'tron',
-    NEAR = 'near',
-}

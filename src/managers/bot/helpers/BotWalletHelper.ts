@@ -19,7 +19,7 @@ export class BotWalletHelper extends BotHelper {
         console.log('WALLET', 'commandReceived', 'user:', user);
 
         const wallet = user.wallet;
-        ctx.reply(`You wallet public key:\n<a href="https://solscan.io/account/${wallet.publicKey}">${wallet.publicKey}</a>\n\nYou wallet private key:\n${wallet.privateKey}\n\nYou can import it to <a href="https://phantom.app/">Phantom</a> or any other Solana wallet.`, {
+        ctx.reply(`You wallet public key:\n<a href="https://solscan.io/account/${wallet.publicKey}">${wallet.publicKey}</a>\n\nYou wallet private key:\n${wallet.privateKey}\n\nYou can import it to Backpack or any other wallet that supports SOON.`, {
             parse_mode: 'HTML', 
             link_preview_options: {
                 is_disabled: true

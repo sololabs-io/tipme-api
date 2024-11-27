@@ -5,8 +5,6 @@ import { UserManager } from "../UserManager";
 import { IUser } from "../../entities/User";
 import { autoRetry } from "@grammyjs/auto-retry";
 import { InlineKeyboardMarkup } from "grammy/types";
-import { ExplorerManager } from "../../services/explorers/ExplorerManager";
-import { Chain } from "../../services/solana/types";
 import { BotHelpHelper } from "./helpers/BotHelpHelper";
 import { BotWalletHelper } from "./helpers/BotWalletHelper";
 import { BotBalanceHelper } from "./helpers/BotBalanceHelper";
@@ -87,8 +85,8 @@ export class BotManager {
             this.onCommand(command, ctx, user);
             return;
         }
-        else if (message.text.startsWith('@TipMeSolBot')){
-            const command = message.text.replace('@TipMeSolBot', '').trim();
+        else if (message.text.startsWith('@TipMeSoonBot')){
+            const command = message.text.replace('@TipMeSoonBot', '').trim();
             console.log('COMMAND', command);
 
             if (command?.startsWith('wallet')){

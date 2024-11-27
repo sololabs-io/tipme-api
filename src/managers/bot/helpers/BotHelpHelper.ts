@@ -14,9 +14,9 @@ export class BotHelpHelper extends BotHelper {
                     '/wallet - Reveal your wallet\'s Public and Private keys.\n' +
                     '/balance - Check your wallet balance.\n' +
                     '/send - Send tokens to someone.\n\n' + 
-                    'Example: /send 1000 BONK to @heymike777\n\n' +
+                    'Example: /send 1 SOL to @heymike777\n\n' +
                     'If you use TipMe in a group chat, you can send tokens to any user in the chat by mentioning them.\n\n' +
-                    'Example: @TipMeSolBot send 1000 BONK to @heymike777\n\n'
+                    'Example: @TipMeSoonBot send 1 SOL to @heymike777\n\n'
         };
 
         super('help', replyMessage);
