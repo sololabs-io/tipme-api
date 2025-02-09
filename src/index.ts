@@ -15,10 +15,13 @@ import { BotManager } from './managers/bot/BotManager';
 import { User } from './entities/User';
 import { JitoWebsocketManager } from './services/solana/JitoWebsocketManager';
 import { UserManager } from './managers/UserManager';
+import { testRouter } from './routes/Test';
 
 const app = express();
 app.use(json());
 app.use(cors());
+
+app.use(testRouter);
 
 app.all('*', async () => {
     throw new NotFoundError();
